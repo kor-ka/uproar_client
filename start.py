@@ -1,8 +1,4 @@
-import MqttActor, TrackQueueActor, pyglet
-
-sound = pyglet.media.load('1.mp3', streaming=False)
-sound.play()
-pyglet.app.run()
+import MqttActor, TrackQueueActor
 
 track_queue = TrackQueueActor.TrackQueueActor.start()
 
