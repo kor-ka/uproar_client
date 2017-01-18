@@ -1,7 +1,5 @@
-import urllib, time, os, pyglet
-
+import urllib, time, os
 import subprocess
-from pydub import AudioSegment
 from Queue import Queue
 
 import pykka
