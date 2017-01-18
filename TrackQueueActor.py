@@ -22,7 +22,7 @@ class Player(pykka.ThreadingActor):
         # player.pause()
 
         cmd = "mpg123 %s" % track
-        subprocess.Popen(cmd, shell=True)
+        subprocess.Popen(cmd, shell=True).wait()
 
         if self.prev is not None:
             os.remove(self.prev)
