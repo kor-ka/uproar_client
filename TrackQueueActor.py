@@ -1,4 +1,5 @@
 import urllib, time, os, pyglet
+from playsound import playsound
 from pydub import AudioSegment
 from Queue import Queue
 
@@ -12,14 +13,18 @@ class Player(pykka.ThreadingActor):
 
         print ('play ' + track)
 
-        sound = pyglet.media.load(track, streaming=False)
-        player = sound.play()
-        while sound.duration != player.time:
-            time.sleep(1)
+        # sound = pyglet.media.load(track, streaming=False)
+        # player = sound.play()
+        # while sound.duration != player.time:
+        #     time.sleep(1)
+        #
+        # player.pause()
+        #
+        # if self.prev is not None:
+        #     os.remove(self.prev)
+        #     print ('remove ' + self.prev)
 
-        if self.prev is not None:
-            os.remove(self.prev)
-            print ('remove ' + self.prev)
+        playsound(track)
 
         self.prev = track
 
@@ -41,13 +46,13 @@ class TrackQueueActor(pykka.ThreadingActor):
             track = urllib.urlretrieve(track_url,
                                        str(self.count) + '.mp3')
             mp3_track = track[0]
-            print ('convert track to wav')
-            song = AudioSegment.from_mp3(mp3_track)
-            wav_track = str(self.count) + '.wav'
-            song.export(wav_track, format='wav')
-            os.remove(mp3_track)
-            print ('add track ' + wav_track + ' to play queue')
-            self.player.tell({'command': 'play', 'track': wav_track})
+            # print ('convert track to wav')
+            # song = AudioSegment.from_mp3(mp3_track)
+            # wav_track = str(self.count) + '.wav'
+            # song.export(wav_track, format='wav')
+            # os.remove(mp3_track)
+            print ('add track ' + mp3_track + ' to play queue')
+            self.player.tell({'command': 'play', 'track': mp3_track})
 
     def on_receive(self, message):
         if message.get('command') == 'track':
