@@ -43,16 +43,20 @@ class TrackQueueActor(pykka.ThreadingActor):
             self.count += 1
             track_url = self.queue.get()
             print ('download track: ' + track_url)
-            track = urllib.urlretrieve(track_url,
-                                       str(self.count) + '.mp3')
-            mp3_track = track[0]
-            # print ('convert track to wav')
-            # song = AudioSegment.from_mp3(mp3_track)
-            # wav_track = str(self.count) + '.wav'
-            # song.export(wav_track, format='wav')
-            # os.remove(mp3_track)
-            print ('add track ' + mp3_track + ' to play queue')
-            self.player.tell({'command': 'play', 'track': mp3_track})
+	    #it's download a alot of stuff can happen! (omg, what a shitty shit)
+	    try:
+            	track = urllib.urlretrieve(track_url,
+              	                         str(self.count) + '.mp3')
+            	mp3_track = track[0]
+            	# print ('convert track to wav')
+            	# song = AudioSegment.from_mp3(mp3_track)
+            	# wav_track = str(self.count) + '.wav'
+            	# song.export(wav_track, format='wav')
+            	# os.remove(mp3_track)
+            	print ('add track ' + mp3_track + ' to play queue')
+            	self.player.tell({'command': 'play', 'track': mp3_track})
+	    except Exception as ex:
+		print inst
 
     def on_receive(self, message):
         if message.get('command') == 'track':
