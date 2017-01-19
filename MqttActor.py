@@ -12,7 +12,10 @@ class MqttActor(pykka.ThreadingActor):
     # The callback for when a PUBLISH message is received from the server.
     def on_message(self, client, userdata, msg):
         if msg.topic == ("track_" + self.uid):
-            self.track_queue.tell({'command':'track', 'track':str(msg.payload)})
+	    if not self.track_queue.is_alive():
+            	self.track_queue = TrackQueueActor.TrackQueueActor.start()	
+	    self.track_queue.tell({'command':'track', 'track':str(msg.payload)})
+		
         elif msg.topic == ('volume_' + self.uid):
             if str(msg.payload) == '1':
                 call(["amixer", "-q", "sset", "\'Power Amplifier\'", "5%+"])
