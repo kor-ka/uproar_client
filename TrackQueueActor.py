@@ -56,9 +56,9 @@ class TrackQueueActor(pykka.ThreadingActor):
             self.mqtt_actor.tell({'command': 'update_track_status', 'status':'download', 'track':track})
             # it's download a alot of stuff can happen! (omg, what a shitty shit)
             try:
-                track = urllib.urlretrieve(track_url,
+                resp = urllib.urlretrieve(track_url,
                                            str(self.count) + '.mp3')
-                mp3_track = track[0]
+                mp3_track = resp[0]
                 # print ('convert track to wav')
                 # song = AudioSegment.from_mp3(mp3_track)
                 # wav_track = str(self.count) + '.wav'
