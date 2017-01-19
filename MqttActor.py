@@ -1,4 +1,5 @@
 import pykka, paho.mqtt.client as mqtt, os, urlparse, socket
+from subprocess import call
 
 class MqttActor(pykka.ThreadingActor):
     client = mqtt.Client()
@@ -12,6 +13,11 @@ class MqttActor(pykka.ThreadingActor):
     def on_message(self, client, userdata, msg):
         if msg.topic == ("track_" + self.uid):
             self.track_queue.tell({'command':'track', 'track':str(msg.payload)})
+        elif msg.topic == ('volume_' + self.uid):
+            if str(msg.payload) == '1':
+                call(["amixer", "-q", "sset", "\'Power Amplifier\'", "5%+"])
+            elif str(msg.payload) == '0':
+                call(["amixer", "-q", "sset", "\'Power Amplifier\'", "5%-"])
 
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(self, client, userdata, flags, rc):
@@ -19,6 +25,7 @@ class MqttActor(pykka.ThreadingActor):
 	client.publish('server_test', socket.gethostbyname(socket.gethostname()))        # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
         client.subscribe("track_"+self.uid, 0)
+        client.subscribe("volume_"+self.uid, 0)
 
     def initMqtt(self):
 	print('init mqtt')
