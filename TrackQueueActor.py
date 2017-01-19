@@ -33,7 +33,7 @@ class Player(pykka.ThreadingActor):
 
     def on_receive(self, message):
         if message.get('command') == 'play':
-            self.mqtt_actor.tell({'command': 'update_track_status', 'status':'download', 'track':message.get('track')})
+            self.mqtt_actor.tell({'command': 'update_track_status', 'status':'play', 'track':message.get('track')})
             self.play(message.get('file'))
 
 
