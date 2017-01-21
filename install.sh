@@ -1,5 +1,5 @@
 apt-get update
-apt-get install git
+apt-get -y install git
 git clone https://github.com/kor-ka/uproar_client.git
 cd uproar_client
 
