@@ -24,6 +24,9 @@ class MqttActor(pykka.ThreadingActor):
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
+	if self.track_queue is None or not self.track_queue.is_alive():
+                self.track_queue = TrackQueueActor.TrackQueueActor.start(self.actor_ref)
+	self.track_queue.tell({'command': 'startup'})
         client.publish('server_test', 'hi there')  # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
         client.subscribe("track_" + self.uid, 0)
