@@ -1,3 +1,8 @@
+apt-get update
+apt-get install git
+git clone https://github.com/kor-ka/uproar_client.git
+cd uproar_client
+
 apt-get -y install python-pip
 apt-get -y install mpg123
 pip install -r requirements.txt
