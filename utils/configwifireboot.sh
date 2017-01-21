@@ -21,4 +21,6 @@ rm /etc/wpa_supplicant/wpa_supplicant.conf
 touch /etc/wpa_supplicant/wpa_supplicant.conf
 wpa_passphrase $1 $2 >> /etc/wpa_supplicant/wpa_supplicant.conf
 
+ifconfig wlan0 up
+
 reboot now

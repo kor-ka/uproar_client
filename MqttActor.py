@@ -1,13 +1,12 @@
-import pykka, paho.mqtt.client as mqtt, os, urlparse, socket, json
+import pykka, paho.mqtt.client as mqtt, os, urlparse, socket, json, time
 from subprocess import call
 import TrackQueueActor
 
 
 class MqttActor(pykka.ThreadingActor):
-    client = mqtt.Client()
     uid = os.environ.get('UPROARUID', 'test')
     track_queue = None
-
+    client = None
     # The callback for when a PUBLISH message is received from the server.
     def on_message(self, client, userdata, msg):
         if msg.topic == ("track_" + self.uid):
@@ -25,8 +24,7 @@ class MqttActor(pykka.ThreadingActor):
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
-        client.publish('server_test', socket.gethostbyname(
-            socket.gethostname()))  # Subscribing in on_connect() means that if we lose the connection and
+        client.publish('server_test', 'hi there')  # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
         client.subscribe("track_" + self.uid, 0)
         client.subscribe("volume_" + self.uid, 0)
@@ -45,7 +43,13 @@ class MqttActor(pykka.ThreadingActor):
 
     def on_receive(self, message):
         if message.get('command') == 'init':
-            self.initMqtt()
+	    try:
+                self.client = mqtt.Client()
+            	self.initMqtt()
+	    except Exception as ex:
+                print ex
+		time.sleep(1)
+		self.actor_ref.tell({'command': 'init'})
         elif message.get('command') == 'loop':
             self.actor_ref.tell({'command': 'loop'})
             #command': 'update_track_status', 'status':'download', 'track
