@@ -1,0 +1,12 @@
+# blink.service -- version: "17-Sep-2016"
+# See https://github.com/fordsfords/blink/tree/gh-pages
+[Unit]
+Description=blink: graceful shutdown service
+After=default.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/blink.sh
+
+[Install]
+WantedBy=default.target
