@@ -27,7 +27,7 @@ class MqttActor(pykka.ThreadingActor):
         print("Connected with result code " + str(rc))
         if self.track_queue is None or not self.track_queue.is_alive():
             self.track_queue = TrackQueueActor.TrackQueueActor.start(self.actor_ref)
-        # self.track_queue.tell({'command': 'startup'})
+        self.track_queue.tell({'command': 'startup'})
         client.publish('server_test',
                        self.uid)  # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
