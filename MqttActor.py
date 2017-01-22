@@ -1,12 +1,13 @@
-import pykka, paho.mqtt.client as mqtt, os, urlparse, socket, json, time
+import pykka, paho.mqtt.client as mqtt, os, urlparse, socket, json, time, config
 from subprocess import call
 import TrackQueueActor
 
 
 class MqttActor(pykka.ThreadingActor):
-    uid = os.environ.get('UPROARUID', 'test')
+    uid = config.uproar.get('token')
     track_queue = None
     client = None
+
     # The callback for when a PUBLISH message is received from the server.
     def on_message(self, client, userdata, msg):
         if msg.topic == ("track_" + self.uid):
@@ -24,10 +25,11 @@ class MqttActor(pykka.ThreadingActor):
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
-	if self.track_queue is None or not self.track_queue.is_alive():
-                self.track_queue = TrackQueueActor.TrackQueueActor.start(self.actor_ref)
-	self.track_queue.tell({'command': 'startup'})
-        client.publish('server_test', 'hi there')  # Subscribing in on_connect() means that if we lose the connection and
+        if self.track_queue is None or not self.track_queue.is_alive():
+            self.track_queue = TrackQueueActor.TrackQueueActor.start(self.actor_ref)
+        self.track_queue.tell({'command': 'startup'})
+        client.publish('server_test',
+                       'hi there')  # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
         client.subscribe("track_" + self.uid, 0)
         client.subscribe("volume_" + self.uid, 0)
@@ -37,26 +39,21 @@ class MqttActor(pykka.ThreadingActor):
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
 
-        url_str = os.environ.get('UPROARMQTT', 'mqtt://eksepjal:UyPdNESZw5yo@m21.cloudmqtt.com:18552')
-        url = urlparse.urlparse(url_str)
-        self.client.username_pw_set(url.username, url.password)
-        self.client.connect(url.hostname, url.port)
+        self.client.username_pw_set(config.mqtt.get('username'), config.mqtt.get('pass'))
+        self.client.connect(config.mqtt.get('hostname', config.mqtt.get('port')))
         self.client.loop_start()
-        self.actor_ref.tell({'command': 'loop'})
 
     def on_receive(self, message):
         if message.get('command') == 'init':
-	    try:
+            try:
                 self.client = mqtt.Client()
-            	self.initMqtt()
-	    except Exception as ex:
-                print ex
-		time.sleep(1)
-		self.actor_ref.tell({'command': 'init'})
-        elif message.get('command') == 'loop':
-            self.actor_ref.tell({'command': 'loop'})
-            #command': 'update_track_status', 'status':'download', 'track
+                self.initMqtt()
+            except Exception as ex:
+                print (ex)
+                time.sleep(1)
+                self.actor_ref.tell({'command': 'init'})
         elif message.get('command') == "update_track_status":
             track = message.get('track')
-            data = json.dumps({'message_id':track.get('message_id'), 'chat_id':track.get('chat_id'), 'message':message.get('status')})
+            data = json.dumps({'message_id': track.get('message_id'), 'chat_id': track.get('chat_id'),
+                               'message': message.get('status')})
             self.client.publish("update_test", str(data))
