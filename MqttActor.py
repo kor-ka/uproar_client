@@ -59,4 +59,4 @@ class MqttActor(pykka.ThreadingActor):
             track = message.get('track')
             data = json.dumps({'message_id': track.get('message_id'), 'chat_id': track.get('chat_id'),
                                'message': message.get('status')})
-            self.client.publish("update_test", str(data))
+            self.client.publish("update_" + self.uid, str(data))
