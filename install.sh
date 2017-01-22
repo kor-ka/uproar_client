@@ -14,6 +14,7 @@ sed -i "s@uproardir@$PWD@g" "/etc/init.d/uproar"
 chmod +x /etc/init.d/uproar
 sudo update-rc.d uproar defaults 100
 
-mv file_163.mp3 /media/startup.mp3
+mkdir /usr/uproar
+mv startup.mp3 /usr/uproar/startup.mp3
 
 /etc/init.d/uproar start

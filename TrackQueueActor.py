@@ -37,7 +37,7 @@ class Player(pykka.ThreadingActor):
             self.play(message.get('file'))
             self.mqtt_actor.tell({'command': 'update_track_status', 'status':'done', 'track':message.get('track')})
 	elif message.get('command') == 'startup':
-	    self.play('/media/startup.mp3')
+	    self.play('/usr/uproar/startup.mp3')
 
 
 class TrackQueueActor(pykka.ThreadingActor):
