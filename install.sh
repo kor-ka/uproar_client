@@ -15,6 +15,6 @@ chmod +x /etc/init.d/uproar
 sudo update-rc.d uproar defaults 100
 
 mkdir /usr/uproar
-mv startup.mp3 /usr/uproar/startup.mp3
+cp startup.mp3 /usr/uproar/startup.mp3
 
 /etc/init.d/uproar start

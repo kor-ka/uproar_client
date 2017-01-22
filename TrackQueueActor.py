@@ -10,6 +10,7 @@ class Player(pykka.ThreadingActor):
         super(Player, self).__init__()
         self.mqtt_actor = mqtt_actor
     prev = None
+    startup_sound = '/usr/uproar/startup.mp3'
 
     def play(self, track):
 
@@ -28,8 +29,8 @@ class Player(pykka.ThreadingActor):
         if self.prev is not None:
             os.remove(self.prev)
             print ('remove ' + self.prev)
-
-        self.prev = track
+	if track != startup_sound
+            self.prev = track
 
     def on_receive(self, message):
         if message.get('command') == 'play':
@@ -37,7 +38,7 @@ class Player(pykka.ThreadingActor):
             self.play(message.get('file'))
             self.mqtt_actor.tell({'command': 'update_track_status', 'status':'done', 'track':message.get('track')})
 	elif message.get('command') == 'startup':
-	    self.play('/usr/uproar/startup.mp3')
+	    self.play(startup_sound)
 
 
 class TrackQueueActor(pykka.ThreadingActor):
