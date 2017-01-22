@@ -29,7 +29,7 @@ class Player(pykka.ThreadingActor):
         if self.prev is not None:
             os.remove(self.prev)
             print ('remove ' + self.prev)
-	if track != startup_sound
+	if track != startup_sound:
             self.prev = track
 
     def on_receive(self, message):
