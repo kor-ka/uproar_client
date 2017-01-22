@@ -29,7 +29,7 @@ class Player(pykka.ThreadingActor):
         if self.prev is not None:
             os.remove(self.prev)
             print ('remove ' + self.prev)
-	if track != startup_sound:
+	if track != self.startup_sound:
             self.prev = track
 
     def on_receive(self, message):
@@ -38,7 +38,7 @@ class Player(pykka.ThreadingActor):
             self.play(message.get('file'))
             self.mqtt_actor.tell({'command': 'update_track_status', 'status':'done', 'track':message.get('track')})
 	elif message.get('command') == 'startup':
-	    self.play(startup_sound)
+	    self.play(self.startup_sound)
 
 
 class TrackQueueActor(pykka.ThreadingActor):
