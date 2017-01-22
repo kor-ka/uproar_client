@@ -27,7 +27,7 @@ class MqttActor(pykka.ThreadingActor):
         print("Connected with result code " + str(rc))
         if self.track_queue is None or not self.track_queue.is_alive():
             self.track_queue = TrackQueueActor.TrackQueueActor.start(self.actor_ref)
-        self.track_queue.tell({'command': 'startup'})
+        # self.track_queue.tell({'command': 'startup'})
         client.publish('server_test',
                        self.uid)  # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
@@ -39,8 +39,11 @@ class MqttActor(pykka.ThreadingActor):
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
 
-        self.client.username_pw_set(config.mqtt.get('username'), config.mqtt.get('pass'))
-        self.client.connect(config.mqtt.get('hostname', config.mqtt.get('port')))
+        url_str = os.environ.get('UPROARMQTT', 'mqtt://eksepjal:UyPdNESZw5yo@m21.cloudmqtt.com:18552')
+        url = urlparse.urlparse(url_str)
+        self.client.username_pw_set(url.username, url.password)
+        self.client.connect(url.hostname, url.port)
+        self.client.loop_start()
         self.client.loop_start()
 
     def on_receive(self, message):
