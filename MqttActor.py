@@ -29,7 +29,7 @@ class MqttActor(pykka.ThreadingActor):
             self.track_queue = TrackQueueActor.TrackQueueActor.start(self.actor_ref)
         self.track_queue.tell({'command': 'startup'})
         client.publish('server_test',
-                       'hi there')  # Subscribing in on_connect() means that if we lose the connection and
+                       self.uid)  # Subscribing in on_connect() means that if we lose the connection and
         # reconnect then subscriptions will be renewed.
         client.subscribe("track_" + self.uid, 0)
         client.subscribe("volume_" + self.uid, 0)
