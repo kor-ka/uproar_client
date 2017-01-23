@@ -23,7 +23,6 @@ cd ..
 
 # make executable
 chmod +x start_client.py
-sed -i "s@YOUR_TOKEN_HERE@$1@g" "config.py"
 
 # add daemon
 cp utils/uproar /etc/init.d/uproar
