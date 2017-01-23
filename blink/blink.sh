@@ -169,7 +169,7 @@ sample_mon_reset()
 {
   if [ -n "$MON_RESET" ]; then :
     REG4AH=$(i2cget -f -y 0 0x34 0x4a)  # Read AXP209 register 4AH
-    BUTTON=$(( $REG4AH & 0x02 ))        # mask off the short press bit
+    BUTTON=$(( $REG4AH & 0x01 ))        # mask off the not short not long - good enough for me  press bit
     if [ $BUTTON -eq 0 ]; then :
       MON_RESET_SAMPLE=0
     else :
