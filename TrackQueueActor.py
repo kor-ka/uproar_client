@@ -34,9 +34,12 @@ class Player(pykka.ThreadingActor):
 
     def on_receive(self, message):
         if message.get('command') == 'play':
-            self.mqtt_actor.tell({'command': 'update_track_status', 'status':'playing', 'track':message.get('track')})
+            track = message.get('track')
+            track['message'] = 'playing'
+            self.mqtt_actor.tell({'command': 'update_track_status', 'track':track})
             self.play(message.get('file'))
-            self.mqtt_actor.tell({'command': 'update_track_status', 'status':'done', 'track':message.get('track')})
+            track['message'] = 'done'
+            self.mqtt_actor.tell({'command': 'update_track_status', 'track':track})
 	elif message.get('command') == 'startup':
 	    self.play(self.startup_sound)
 
@@ -56,7 +59,8 @@ class TrackQueueActor(pykka.ThreadingActor):
             track = self.queue.get()
             track_url = track.get('track_url')
             print ('download track: ' + track_url)
-            self.mqtt_actor.tell({'command': 'update_track_status', 'status':'download', 'track':track})
+            track['message'] = 'download'
+            self.mqtt_actor.tell({'command': 'update_track_status', 'track':track})
             # it's download a alot of stuff can happen! (omg, what a shitty shit)
             try:
                 resp = urllib.urlretrieve(track_url,
@@ -68,6 +72,7 @@ class TrackQueueActor(pykka.ThreadingActor):
                 # song.export(wav_track, format='wav')
                 # os.remove(mp3_track)
                 print ('add track ' + mp3_track + ' to play queue')
+                track['message'] = 'queue'
                 self.mqtt_actor.tell({'command': 'update_track_status', 'status': 'queue', 'track': track})
                 self.player.tell({'command': 'play', 'track': track, 'file':mp3_track})
             except Exception as ex:

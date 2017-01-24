@@ -57,6 +57,4 @@ class MqttActor(pykka.ThreadingActor):
                 self.actor_ref.tell({'command': 'init'})
         elif message.get('command') == "update_track_status":
             track = message.get('track')
-            data = json.dumps({'message_id': track.get('message_id'), 'chat_id': track.get('chat_id'),
-                               'message': message.get('status')})
-            self.client.publish("update_" + self.uid, str(data))
+            self.client.publish("update_" + self.uid, str(track))
