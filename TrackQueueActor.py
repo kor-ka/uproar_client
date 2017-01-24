@@ -17,15 +17,8 @@ class Player(pykka.ThreadingActor):
 
         print ('play ' + track)
 
-        # sound = pyglet.media.load(track, streaming=False)
-        # player = sound.play()
-        # while sound.duration != player.time:
-        #     time.sleep(1)
-        #
-        # player.pause()
-
-        # cmd = "mpg123 %s" % track
-        # subprocess.Popen(cmd, shell=True).wait()
+        cmd = "mpg123 %s" % track
+        subprocess.Popen(cmd, shell=True).wait()
 
         if self.prev is not None:
             os.remove(self.prev)
