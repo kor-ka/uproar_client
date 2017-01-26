@@ -159,5 +159,5 @@ class TrackQueueActor(pykka.ThreadingActor):
             if self.skip_current_download:
                 self.skip_current_download = False
             else:
-                self.player_queue.put(self.player.tell(message))
+                self.player_queue.put(message)
                 self.player.tell({'command': 'check'})
