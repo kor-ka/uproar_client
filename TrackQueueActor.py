@@ -18,11 +18,12 @@ class Player(pykka.ThreadingActor):
 
         print ('play ' + track)
 
-        cmd = "pkill mpg123"
-        subprocess.Popen(cmd, shell=True).wait()
-
         cmd = "mpg123 %s" % track
-        subprocess.Popen(cmd, shell=True).wait()
+        p = subprocess.Popen(cmd, shell=True)
+
+        self.queue_actor.tell({'command':'playing_process', "p":p})
+
+        p.wait()
 
         if self.prev is not None:
             os.remove(self.prev)
@@ -111,6 +112,7 @@ class TrackQueueActor(pykka.ThreadingActor):
         self.playing = None
 
         self.skip_current_download = False
+        self.p = None
 
     # def check_download(self):
     #     if self.downloadQueue.qsize() > 0:
@@ -124,8 +126,8 @@ class TrackQueueActor(pykka.ThreadingActor):
         if self.downloading is not None and self.downloading.get('orig') == orig:
             self.skip_current_download = True
         elif self.playing is not None and self.playing.get('track').get('orig') == orig:
-            cmd = "pkill mpg123"
-            subprocess.Popen(cmd, shell=True).wait()
+            if self.p is not None:
+                self.p.terminate()
         else:
             for qp in self.player_queue.queue:
                 if qp.get('track').get('orig') == orig:
@@ -163,3 +165,5 @@ class TrackQueueActor(pykka.ThreadingActor):
             else:
                 self.player_queue.put(message)
                 self.player.tell({'command': 'check'})
+        elif message.get('command') == 'playing_process':
+            self.p = message.get('p')
