@@ -11,8 +11,7 @@ class MqttActor(pykka.ThreadingActor):
     # The callback for when a PUBLISH message is received from the server.
     def on_message(self, client, userdata, msg):
         if msg.topic == ("track_" + self.uid):
-            if self.track_queue is None or not self.track_queue.is_alive():
-                self.track_queue = TrackQueueActor.TrackQueueActor.start(self.actor_ref)
+            self.check_q_a()
             data = json.loads(str(msg.payload))
             self.track_queue.tell({'command': 'track', 'track': data})
 
@@ -22,14 +21,18 @@ class MqttActor(pykka.ThreadingActor):
             elif str(msg.payload) == '0':
                 call(["amixer", "-q", "sset", "\'Power Amplifier\'", "5%-"])
 
-        elif msg.topic == ("skip" + self.uid):
-            self.track_queue.tell({'command':'skip', 'orig':str(msg.payload)})
+        elif msg.topic == ("skip_" + self.uid):
+            self.check_q_a()
+            self.track_queue.tell({'command':'skip', 'orig':int(msg.payload)})
+
+    def check_q_a(self):
+        if self.track_queue is None or not self.track_queue.is_alive():
+            self.track_queue = TrackQueueActor.TrackQueueActor.start(self.actor_ref)
 
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
-        if self.track_queue is None or not self.track_queue.is_alive():
-            self.track_queue = TrackQueueActor.TrackQueueActor.start(self.actor_ref)
+        self.check_q_a()
         self.track_queue.tell({'command': 'startup'})
         client.publish('server_test',
                        self.uid)  # Subscribing in on_connect() means that if we lose the connection and

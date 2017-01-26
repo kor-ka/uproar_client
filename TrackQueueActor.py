@@ -83,6 +83,7 @@ class Downloader(pykka.ThreadingActor):
             self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': mp3_track})
         except Exception as ex:
             print ex
+        finally: self.check_queue()
 
     def check_queue(self):
         to_download = self.queue_actor.ask({'command': 'pop_download'})
@@ -143,18 +144,20 @@ class TrackQueueActor(pykka.ThreadingActor):
             print ('add track ' + message.get('track').get('track_url') + ' to download queue')
             self.download_queue.put(message.get('track'))
             self.downloader.tell({'command': 'check'})
-        if message.get('command') == 'pop_download':
+        elif message.get('command') == 'pop_download':
             self.downloading = None if self.download_queue.empty() else self.download_queue.get(block=False)
-            self.count += 1
-            self.downloading['count'] = self.count
+            if self.downloading is not None:
+                self.count += 1
+                self.downloading['count'] = self.count
             return self.downloading
-        if message.get('command') == 'pop_play':
+        elif message.get('command') == 'pop_play':
             self.playing = None if self.player_queue.empty() else self.player_queue.get(block=False)
             return self.playing
         # elif message.get('command') == 'check_download':
         #     self.check_download()
         elif message.get('command') == 'startup':
-            self.player.tell(message)
+            pass
+            # self.player.tell(message)
         elif message.get('command') == 'skip':
             self.on_skip(message.get('orig'))
         # elif message.get('command') == 'check_player':
