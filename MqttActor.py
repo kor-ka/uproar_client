@@ -7,6 +7,7 @@ class MqttActor(pykka.ThreadingActor):
     uid = config.uproar.get('token')
     track_queue = None
     client = None
+    once = True
 
     # The callback for when a PUBLISH message is received from the server.
     def on_message(self, client, userdata, msg):
@@ -32,11 +33,11 @@ class MqttActor(pykka.ThreadingActor):
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
-        self.check_q_a()
-        self.track_queue.tell({'command': 'startup'})
-        client.publish('server_test',
-                       self.uid)  # Subscribing in on_connect() means that if we lose the connection and
-        # reconnect then subscriptions will be renewed.
+        if self.once:
+            self.once = False
+            client.publish('server_test', self.uid)
+            self.check_q_a()
+            self.track_queue.tell({'command': 'startup'})
         client.subscribe("track_" + self.uid, 0)
         client.subscribe("volume_" + self.uid, 0)
         client.subscribe("skip_" + self.uid, 0)
