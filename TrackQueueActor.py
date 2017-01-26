@@ -18,11 +18,11 @@ class Player(pykka.ThreadingActor):
 
         print ('play ' + track)
 
-        cmd = "pkill mpg123"
-        subprocess.Popen(cmd, shell=True).wait()
-
-        cmd = "mpg123 %s" % track
-        subprocess.Popen(cmd, shell=True).wait()
+        # cmd = "pkill mpg123"
+        # subprocess.Popen(cmd, shell=True).wait()
+        #
+        # cmd = "mpg123 %s" % track
+        # subprocess.Popen(cmd, shell=True).wait()
 
         if self.prev is not None:
             os.remove(self.prev)
@@ -49,7 +49,7 @@ class Player(pykka.ThreadingActor):
 
 
     def on_receive(self, message):
-        if message.get('message') == 'check':
+        if message.get('command') == 'check':
             self.check_queue()
         elif message.get('command') == 'startup':
             self.play(self.startup_sound)
@@ -121,9 +121,9 @@ class TrackQueueActor(pykka.ThreadingActor):
     #         self.downloader.tell({'command':'download', 'track': track})
 
     def on_skip(self, orig):
-        if self.downloading.get('orig') == orig:
+        if self.downloading is not None and self.downloading.get('orig') == orig:
             self.skip_current_download = True
-        elif self.playing.get('track').get('orig') == orig:
+        elif self.playing is not None and self.playing.get('track').get('orig') == orig:
             cmd = "pkill mpg123"
             subprocess.Popen(cmd, shell=True).wait()
         else:

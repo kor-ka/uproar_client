@@ -1,1 +1,1 @@
-uproar = {'token':'YOUR_TOKEN_HERE'}
+uproar = {'token':'kor_ka:UIWBC:-9025339927650465585'}
