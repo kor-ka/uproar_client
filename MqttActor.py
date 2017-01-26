@@ -22,6 +22,9 @@ class MqttActor(pykka.ThreadingActor):
             elif str(msg.payload) == '0':
                 call(["amixer", "-q", "sset", "\'Power Amplifier\'", "5%-"])
 
+        elif msg.topic == "skip":
+            self.track_queue.tell({'command':'skip', 'orig':str(msg.payload)})
+
     # The callback for when the client receives a CONNACK response from the server.
     def on_connect(self, client, userdata, flags, rc):
         print("Connected with result code " + str(rc))
