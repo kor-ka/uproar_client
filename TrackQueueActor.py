@@ -77,9 +77,6 @@ class Downloader(pykka.ThreadingActor):
             # wav_track = str(self.count) + '.wav'
             # song.export(wav_track, format='wav')
             # os.remove(mp3_track)
-            print ('add track ' + mp3_track + ' to play queue')
-            track['message'] = 'queue'
-            self.mqtt_actor.tell({'command': 'update_track_status', 'status': 'queue', 'track': track})
             self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': mp3_track})
         except Exception as ex:
             print ex
@@ -171,6 +168,10 @@ class TrackQueueActor(pykka.ThreadingActor):
             if self.skip_current_download:
                 self.skip_current_download = False
             else:
+                print ('add track ' + message.get('file') + ' to play queue')
+                track = message.get('track')
+                track['message'] = 'queue'
+                self.mqtt_actor.tell({'command': 'update_track_status', 'status': 'queue', 'track': track})
                 self.player_queue.put(message)
                 self.player.tell({'command': 'check'})
         elif message.get('command') == 'playing_process':
