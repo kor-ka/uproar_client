@@ -18,11 +18,11 @@ class Player(pykka.ThreadingActor):
 
         print ('play ' + track)
 
-        # cmd = "pkill mpg123"
-        # subprocess.Popen(cmd, shell=True).wait()
-        #
-        # cmd = "mpg123 %s" % track
-        # subprocess.Popen(cmd, shell=True).wait()
+        cmd = "pkill mpg123"
+        subprocess.Popen(cmd, shell=True).wait()
+
+        cmd = "mpg123 %s" % track
+        subprocess.Popen(cmd, shell=True).wait()
 
         if self.prev is not None:
             os.remove(self.prev)
@@ -142,10 +142,12 @@ class TrackQueueActor(pykka.ThreadingActor):
             self.download_queue.put(message.get('track'))
             self.downloader.tell({'command': 'check'})
         if message.get('command') == 'pop_download':
-            self.downloading = self.download_queue.get()
+            self.downloading = None if self.download_queue.empty() else self.download_queue.get(block=False)
+            self.count += 1
+            self.downloading['count'] = self.count
             return self.downloading
         if message.get('command') == 'pop_play':
-            self.playing = self.player_queue.get()
+            self.playing = None if self.player_queue.empty() else self.player_queue.get(block=False)
             return self.playing
         # elif message.get('command') == 'check_download':
         #     self.check_download()
