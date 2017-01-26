@@ -142,6 +142,7 @@ class TrackQueueActor(pykka.ThreadingActor):
                     qd['skip'] = True
                     track = qd.get('track')
         if track is not None:
+            track['message'] = 'skip'
             self.mqtt_actor.tell({'command': 'update_track_status', 'status': 'skip', 'track': track})
 
     def on_receive(self, message):
