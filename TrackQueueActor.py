@@ -104,7 +104,7 @@ class TrackQueueActor(pykka.ThreadingActor):
         self.download_queue = Queue()
         self.player_queue = Queue()
         self.count = 0
-        self.player = Player.start(mqtt_actor)
+        self.player = Player.start(mqtt_actor, self.actor_ref)
         self.downloader = Downloader.start(mqtt_actor, self.actor_ref)
 
         self.downloading = None

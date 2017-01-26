@@ -47,7 +47,6 @@ class MqttActor(pykka.ThreadingActor):
         self.client.username_pw_set(url.username, url.password)
         self.client.connect(url.hostname, url.port)
         self.client.loop_start()
-        self.client.loop_start()
 
     def on_receive(self, message):
         if message.get('command') == 'init':
