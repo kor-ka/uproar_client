@@ -36,6 +36,7 @@ class MqttActor(pykka.ThreadingActor):
         # reconnect then subscriptions will be renewed.
         client.subscribe("track_" + self.uid, 0)
         client.subscribe("volume_" + self.uid, 0)
+        client.subscribe("skip_" + self.uid, 0)
 
     def initMqtt(self):
         print('init mqtt')
