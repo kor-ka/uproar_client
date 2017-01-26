@@ -124,20 +124,25 @@ class TrackQueueActor(pykka.ThreadingActor):
     #         self.downloader.tell({'command':'download', 'track': track})
 
     def on_skip(self, orig):
+        track = None
         if self.downloading is not None and self.downloading.get('orig') == orig:
             self.skip_current_download = True
+            track = self.downloading
         elif self.playing is not None and self.playing.get('track').get('orig') == orig:
+            track = self.playing.get('track')
             if self.p is not None:
                 self.p.terminate()
         else:
             for qp in self.player_queue.queue:
                 if qp.get('track').get('orig') == orig:
                     qp['skip'] = True
-                    return
+                    track = qp.get('track')
             for qd in self.download_queue.queue:
                 if qd.get('orig') == orig:
                     qd['skip'] = True
-                    return
+                    track = qd.get('track')
+        if track is not None:
+            self.mqtt_actor.tell({'command': 'update_track_status', 'status': 'queue', 'track': track})
 
     def on_receive(self, message):
         if message.get('command') == 'track':
@@ -156,8 +161,7 @@ class TrackQueueActor(pykka.ThreadingActor):
         # elif message.get('command') == 'check_download':
         #     self.check_download()
         elif message.get('command') == 'startup':
-            pass
-            # self.player.tell(message)
+            self.player.tell(message)
         elif message.get('command') == 'skip':
             self.on_skip(message.get('orig'))
         # elif message.get('command') == 'check_player':
