@@ -46,7 +46,7 @@ class MqttActor(pykka.ThreadingActor):
             self.once = False
             client.publish('server_test', self.uid)
             self.check_q_a()
-            # self.track_queue.tell({'command': 'startup'})
+            self.track_queue.tell({'command': 'startup'})
 
 
     def initMqtt(self):
