@@ -149,7 +149,7 @@ class TrackQueueActor(pykka.ThreadingActor):
                 if qd.get('orig') == orig:
                     self.download_queue_promoted.put(qd.copy())
                     qd['action'] = action
-                    track = qd.get('track')
+                    track = qd
         if track is not None:
             track['message'] = action
             self.mqtt_actor.tell({'command': 'update_track_status', 'status': action, 'track': track})
