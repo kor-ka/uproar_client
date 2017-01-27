@@ -11,8 +11,10 @@ class MqttActor(pykka.ThreadingActor):
 
     # The callback for when a PUBLISH message is received from the server.
     def on_message(self, client, userdata, msg):
+
+        self.check_q_a()
+
         if msg.topic == ("track_" + self.uid):
-            self.check_q_a()
             data = json.loads(str(msg.payload))
             self.track_queue.tell({'command': 'track', 'track': data})
 
@@ -22,9 +24,8 @@ class MqttActor(pykka.ThreadingActor):
             elif str(msg.payload) == '0':
                 call(["amixer", "-q", "sset", "\'Power Amplifier\'", "5%-"])
 
-        elif msg.topic == ("skip_" + self.uid):
-            self.check_q_a()
-            self.track_queue.tell({'command':'skip', 'orig':int(msg.payload)})
+        elif msg.topic == ("promote_" + self.uid):
+            self.track_queue.tell({'command':'promote', 'orig':int(msg.payload)})
 
     def check_q_a(self):
         if self.track_queue is None or not self.track_queue.is_alive():
@@ -37,6 +38,7 @@ class MqttActor(pykka.ThreadingActor):
         client.subscribe("track_" + self.uid, 0)
         client.subscribe("volume_" + self.uid, 0)
         client.subscribe("skip_" + self.uid, 0)
+        client.subscribe("promote_" + self.uid, 0)
 
         if self.once:
             self.once = False
