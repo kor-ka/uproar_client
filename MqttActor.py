@@ -26,6 +26,8 @@ class MqttActor(pykka.ThreadingActor):
 
         elif msg.topic == ("promote_" + self.uid):
             self.track_queue.tell({'command':'promote', 'orig':int(msg.payload)})
+        elif msg.topic == ("skip_" + self.uid):
+            self.track_queue.tell({'command':'skip', 'orig':int(msg.payload)})
 
     def check_q_a(self):
         if self.track_queue is None or not self.track_queue.is_alive():
@@ -44,7 +46,7 @@ class MqttActor(pykka.ThreadingActor):
             self.once = False
             client.publish('server_test', self.uid)
             self.check_q_a()
-            self.track_queue.tell({'command': 'startup'})
+            # self.track_queue.tell({'command': 'startup'})
 
 
     def initMqtt(self):
