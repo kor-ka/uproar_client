@@ -1,6 +1,6 @@
 
 # 1. get token
-telegram.me/uproarbot/token
+telegram.me/uproarbot -> /token
 
 
 # 2. Install
