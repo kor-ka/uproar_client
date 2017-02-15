@@ -142,12 +142,14 @@ class TrackQueueActor(pykka.ThreadingActor):
         else:
             for qp in self.player_queue.queue:
                 if qp.get('track').get('orig') == orig:
-                    self.player_queue_promoted.put(qp.copy())
+                    if action == "promote"
+                        self.player_queue_promoted.put(qp.copy())
                     qp['action'] = action
                     track = qp.get('track')
             for qd in self.download_queue.queue:
                 if qd.get('orig') == orig:
-                    self.download_queue_promoted.put(qd.copy())
+                    if action == "promote"
+                        self.download_queue_promoted.put(qd.copy())
                     qd['action'] = action
                     track = qd
         if track is not None:
@@ -187,8 +189,9 @@ class TrackQueueActor(pykka.ThreadingActor):
             if self.skip_current_download:
                 self.skip_current_download = False
             else:
-                if self.promote_current_download:
-                    self.promote_current_download = False
+                if self.promote_current_download or message.get("track").get("action") = "promote":
+                    if self.promote_current_download: 
+                        self.promote_current_download = False
                     self.player_queue_promoted.put(message)
                 else:
                     self.player_queue.put(message)
