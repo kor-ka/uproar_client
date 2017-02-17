@@ -141,14 +141,14 @@ class TrackQueueActor(pykka.ThreadingActor):
                 self.p.terminate()
         else:
             for qp in self.player_queue.queue:
-                if qp.get('track').get('orig') == orig && qp.get("action") is None:
-                    if action == "promote"
+                if qp.get('track').get('orig') == orig and qp.get("action") is None:
+                    if action == "promote":
                         self.player_queue_promoted.put(qp.copy())
                     qp['action'] = action
                     track = qp.get('track')
             for qd in self.download_queue.queue:
-                if qd.get('orig') == orig && qd.get("action") is None:
-                    if action == "promote"
+                if qd.get('orig') == orig and qd.get("action") is None:
+                    if action == "promote":
                         self.download_queue_promoted.put(qd.copy())
                     qd['action'] = action
                     track = qd
@@ -175,7 +175,7 @@ class TrackQueueActor(pykka.ThreadingActor):
             if self.playing is None:
                 self.playing = None if self.player_queue.empty() else self.player_queue.get(block=False)
             if self.playing is None:
-                self.mqtt_actor.tell({"command":"boring":})
+                self.mqtt_actor.tell({"command":"boring"})
             return self.playing
         # elif message.get('command') == 'check_download':
         #     self.check_download()
@@ -191,7 +191,7 @@ class TrackQueueActor(pykka.ThreadingActor):
             if self.skip_current_download:
                 self.skip_current_download = False
             else:
-                if self.promote_current_download or message.get("track").get("action") = "promote":
+                if self.promote_current_download or message.get("track").get("action") == "promote":
                     if self.promote_current_download: 
                         self.promote_current_download = False
                     self.player_queue_promoted.put(message)

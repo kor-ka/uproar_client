@@ -1,7 +1,7 @@
 import pykka, paho.mqtt.client as mqtt, os, urlparse, socket, json, time, config
 from subprocess import call
 import TrackQueueActor
-
+import PingActor
 
 class MqttActor(pykka.ThreadingActor):
     uid = config.uproar.get('token')
@@ -9,6 +9,8 @@ class MqttActor(pykka.ThreadingActor):
     client = None
     once = True
 
+    def on_start(self):
+         PingActor.PingActor.start(self.actor_ref)
     # The callback for when a PUBLISH message is received from the server.
     def on_message(self, client, userdata, msg):
 
@@ -74,4 +76,6 @@ class MqttActor(pykka.ThreadingActor):
             self.client.publish("update_" + self.uid, str(json.dumps(track)))
         elif message.get('command') == "boring":
             self.client.publish("message_" + self.uid, "boring")
+        elif message.get('command') == "message":
+            self.client.publish("message_" + self.uid, str(message.get("message")))
             
