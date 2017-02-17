@@ -7,7 +7,7 @@ import pykka
 
 class PingActor(pykka.ThreadingActor):
     def __init__(self, mqtt_actor):
-        super(Player, self).__init__()
+        super(PingActor, self).__init__()
         self.mqtt_actor = mqtt_actor
 
     def on_start(self):
