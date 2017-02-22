@@ -174,7 +174,7 @@ class TrackQueueActor(pykka.ThreadingActor):
             self.playing = None if self.player_queue_promoted.empty() else self.player_queue_promoted.get(block=False)
             if self.playing is None:
                 self.playing = None if self.player_queue.empty() else self.player_queue.get(block=False)
-            if self.playing is None:
+            if self.playing is None and self.downloading is None and self.download_queue.empty() and self.download_queue_promoted.empty():
                 self.mqtt_actor.tell({"command":"boring"})
             return self.playing
         # elif message.get('command') == 'check_download':
