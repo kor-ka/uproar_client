@@ -116,6 +116,7 @@ class TrackQueueActor(pykka.ThreadingActor):
         self.skip_current_download = False
         self.promote_current_download = False
         self.p = None
+        self.boring = False
 
     # def check_download(self):
     #     if self.downloadQueue.qsize() > 0:
@@ -160,6 +161,7 @@ class TrackQueueActor(pykka.ThreadingActor):
         if message.get('command') == 'track':
             print ('add track ' + message.get('track').get('track_url') + ' to download queue')
             self.download_queue.put(message.get('track'))
+            self.boring = True
             self.downloader.tell({'command': 'check'})
         elif message.get('command') == 'pop_download':
             self.downloading = None if self.download_queue_promoted.empty() else self.download_queue_promoted.get(
@@ -174,7 +176,8 @@ class TrackQueueActor(pykka.ThreadingActor):
             self.playing = None if self.player_queue_promoted.empty() else self.player_queue_promoted.get(block=False)
             if self.playing is None:
                 self.playing = None if self.player_queue.empty() else self.player_queue.get(block=False)
-            if self.playing is None and self.downloading is None and self.download_queue.empty() and self.download_queue_promoted.empty():
+            if self.playing is None and self.downloading is None and self.download_queue.empty() and self.download_queue_promoted.empty() and self.boring:
+                self.boring = False
                 self.mqtt_actor.tell({"command":"boring"})
             return self.playing
         # elif message.get('command') == 'check_download':
