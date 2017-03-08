@@ -1,7 +1,9 @@
 import urllib, time, os
 import subprocess
+import os.path
 from Queue import Queue
 
+import logging
 import pykka
 
 
@@ -52,7 +54,8 @@ class Player(pykka.ThreadingActor):
         if message.get('command') == 'check':
             self.check_queue()
         elif message.get('command') == 'startup':
-            self.play(self.startup_sound)
+            if os.path.isfile(self.startup_sound):
+                self.play(self.startup_sound)
 
 
 class Downloader(pykka.ThreadingActor):
@@ -155,58 +158,64 @@ class TrackQueueActor(pykka.ThreadingActor):
                     track = qd
         if track is not None:
             track['message'] = action
-            self.mqtt_actor.tell({'command': 'update_track_status', 'status': action, 'track': track})
+            self.mqtt_actor.tell({'command': 'update_track_status', 'track': track})
 
     def on_receive(self, message):
-        if message.get('command') == 'track':
-            print ('add track ' + message.get('track').get('track_url') + ' to download queue')
-            self.download_queue.put(message.get('track'))
-            self.boring = True
-            self.downloader.tell({'command': 'check'})
-        elif message.get('command') == 'pop_download':
-            self.downloading = None if self.download_queue_promoted.empty() else self.download_queue_promoted.get(
-                block=False)
-            if self.downloading is None:
-                self.downloading = None if self.download_queue.empty() else self.download_queue.get(block=False)
-            if self.downloading is not None:
-                self.count += 1
-                self.downloading['count'] = self.count
-            return self.downloading
-        elif message.get('command') == 'pop_play':
-            self.playing = None if self.player_queue_promoted.empty() else self.player_queue_promoted.get(block=False)
-            if self.playing is None:
-                self.playing = None if self.player_queue.empty() else self.player_queue.get(block=False)
-            if self.playing is None and self.downloading is None and self.download_queue.empty() and self.download_queue_promoted.empty() and self.boring:
-                self.boring = False
-                self.mqtt_actor.tell({"command":"boring"})
-            return self.playing
-        # elif message.get('command') == 'check_download':
-        #     self.check_download()
-        elif message.get('command') == 'startup':
-            self.player.tell(message)
-        elif message.get('command') == 'skip':
-            self.on_move_action(message.get('orig'), 'skip')
-        elif message.get('command') == 'promote':
-            self.on_move_action(message.get('orig'), 'promote')
-        # elif message.get('command') == 'check_player':
-        #     self.check_player()
-        elif message.get('command') == 'downloaded':
-            if self.skip_current_download:
-                self.skip_current_download = False
-            else:
-                if self.promote_current_download or message.get("track").get("action") == "promote":
-                    if self.promote_current_download: 
-                        self.promote_current_download = False
-                    self.player_queue_promoted.put(message)
+        try:
+
+            if message.get('command') == 'add_content':
+                track = message.get("content").get("audio")
+                if track:
+                    print ('add content ' + track.get('title') + ' to download queue')
+                    self.download_queue.put(track)
+                    self.boring = True
+                    self.downloader.tell({'command': 'check'})
+            elif message.get('command') == 'pop_download':
+                self.downloading = None if self.download_queue_promoted.empty() else self.download_queue_promoted.get(
+                    block=False)
+                if self.downloading is None:
+                    self.downloading = None if self.download_queue.empty() else self.download_queue.get(block=False)
+                if self.downloading is not None:
+                    self.count += 1
+                    self.downloading['count'] = self.count
+                return self.downloading
+            elif message.get('command') == 'pop_play':
+                self.playing = None if self.player_queue_promoted.empty() else self.player_queue_promoted.get(block=False)
+                if self.playing is None:
+                    self.playing = None if self.player_queue.empty() else self.player_queue.get(block=False)
+                if self.playing is None and self.downloading is None and self.download_queue.empty() and self.download_queue_promoted.empty() and self.boring:
+                    self.boring = False
+                    self.mqtt_actor.tell({"command":"update", "update":"boring"})
+                return self.playing
+            # elif message.get('command') == 'check_download':
+            #     self.check_download()
+            elif message.get('command') == 'startup':
+                self.player.tell(message)
+            elif message.get('command') == 'skip':
+                self.on_move_action(message.get('orig'), 'skip')
+            elif message.get('command') == 'promote':
+                self.on_move_action(message.get('orig'), 'promote')
+            # elif message.get('command') == 'check_player':
+            #     self.check_player()
+            elif message.get('command') == 'downloaded':
+                if self.skip_current_download:
+                    self.skip_current_download = False
                 else:
-                    self.player_queue.put(message)
+                    if self.promote_current_download or message.get("track").get("action") == "promote":
+                        if self.promote_current_download:
+                            self.promote_current_download = False
+                        self.player_queue_promoted.put(message)
+                    else:
+                        self.player_queue.put(message)
 
-                track = message.get('track')
-                track['message'] = 'queue'
-                self.mqtt_actor.tell({'command': 'update_track_status', 'status': 'queue', 'track': track})
-                self.player.tell({'command': 'check'})
+                    track = message.get('track')
+                    track['message'] = 'queue'
+                    self.mqtt_actor.tell({'command': 'update_track_status', 'track': track})
+                    self.player.tell({'command': 'check'})
 
-                print ('add track ' + message.get('file') + ' to play queue')
+                    print ('add track ' + message.get('file') + ' to play queue')
 
-        elif message.get('command') == 'playing_process':
-            self.p = message.get('p')
+            elif message.get('command') == 'playing_process':
+                self.p = message.get('p')
+        except Exception as ex:
+            logging.exception(ex)
