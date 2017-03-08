@@ -166,7 +166,7 @@ class TrackQueueActor(pykka.ThreadingActor):
             if message.get('command') == 'add_content':
                 track = message.get("content").get("audio")
                 if track:
-                    print ('add content ' + track.get('title') + ' to download queue')
+                    print ('add content ' + track.get('title').encode('ascii', 'ignore').decode('ascii') + ' to download queue')
                     self.download_queue.put(track)
                     self.boring = True
                     self.downloader.tell({'command': 'check'})
