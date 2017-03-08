@@ -17,7 +17,7 @@ class PingActor(pykka.ThreadingActor):
         self.mqtt_actor.tell({"command":"ping"})
         print "--ping--"
         time.sleep(10)
-        self.actor_ref.tell({"command":"message", "message":"ping"})
+        self.actor_ref.tell({"command":"ping"})
 
     def on_receive(self, message):
         if message.get('command') == 'ping':
