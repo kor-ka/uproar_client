@@ -54,7 +54,7 @@ class MqttActor(pykka.ThreadingActor):
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
 
-        url_str = 'mqtt://%s:%s@m21.cloudmqtt.com:18552' % (self.uid.split("-")[1], self.uid)
+        url_str = 'mqtt://%s:%s@m21.cloudmqtt.com:18552' % (self.uid.split("-")[0] + "-" + self.uid.split("-")[1], self.uid)
         url = urlparse.urlparse(url_str)
         self.client.username_pw_set(url.username, url.password)
         self.client.connect(url.hostname, url.port)
