@@ -27,6 +27,7 @@ class Player(pykka.ThreadingActor):
 
         self.queue_actor.tell({'command': 'playing_process', "p": p})
 
+        # TODO schedule kill
         p.wait()
 
         if self.prev is not None:
@@ -112,9 +113,9 @@ class Downloader(pykka.ThreadingActor):
                     resp = urllib.urlretrieve(video.url,
                                               str(track.get('count')) + '.mp4')
                     file = resp[0]
-                    track["play_with"] = "vlc"
-                    track["args"] = "--fullscreen --play-and-exit"
-                    track["kill"] = "killall -9 VLC"
+                    track["play_with"] = "mplayer"
+                    track["args"] = "-fs"
+                    # track["kill"] = "killall -9 VLC"
                     self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': file})
             except Exception as ex:
                 print logging.exception(ex)
