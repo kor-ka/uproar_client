@@ -20,10 +20,8 @@ class Player(pykka.ThreadingActor):
     startup_sound = '/usr/uproar/startup.mp3'
 
     def play(self, track, with_command, args, delete):
-        args = "" if not args else " " + args
-        cmd = with_command + args + " " + track
-        print (cmd)
-        p = subprocess.Popen(cmd, shell=True)
+
+        p = subprocess.Popen(with_command, args=args)
 
         self.queue_actor.tell({'command': 'playing_process', "p": p})
 
@@ -97,7 +95,8 @@ class Downloader(pykka.ThreadingActor):
                 # wav_track = str(self.count) + '.wav'
                 # song.export(wav_track, format='wav')
                 # os.remove(mp3_track)
-                track["play_with"] = "mpg123"
+                track["play_with"] = "mplayer"
+                track["args"] = ["-fs, -framedrop"]
                 self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': mp3_track})
             except Exception as ex:
                 print logging.exception(ex)
@@ -114,7 +113,7 @@ class Downloader(pykka.ThreadingActor):
                                               str(track.get('count')) + '.mp4')
                     file = resp[0]
                     track["play_with"] = "mplayer"
-                    track["args"] = "-fs -framedrop"
+                    track["args"] =["-fs, -framedrop"]
                     # track["kill"] = "killall -9 VLC"
                     self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': file})
             except Exception as ex:
