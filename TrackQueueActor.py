@@ -22,6 +22,7 @@ class Player(pykka.ThreadingActor):
 
     def play(self, track, with_command, args, delete):
         args.insert(0, with_command)
+        args.insert(1, track)
         p = subprocess.Popen(args)
 
         self.queue_actor.tell({'command': 'playing_process', "p": p})
