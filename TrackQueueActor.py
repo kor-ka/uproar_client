@@ -65,7 +65,7 @@ class Player(pykka.ThreadingActor):
                 self.check_queue()
             elif message.get('command') == 'startup':
                 if os.path.isfile(self.startup_sound):
-                    self.play(self.startup_sound)
+                    self.play(self.startup_sound, "mpg123", "", False)
         except Exception as ex:
             logging.exception(ex)
 
