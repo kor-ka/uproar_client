@@ -23,9 +23,7 @@ class Player(pykka.ThreadingActor):
     def play(self, track, with_command, args, delete):
         args.insert(0, with_command)
         args.insert(1, track)
-        with open('%s.log' % self.log_count, 'w') as outfile:
-            p = subprocess.Popen(args, stdout=outfile)
-            self.log_count += 1
+        p = subprocess.Popen(args)
         self.queue_actor.tell({'command': 'playing_process', "p": p})
 
         # TODO schedule kill
