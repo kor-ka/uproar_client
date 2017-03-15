@@ -19,12 +19,13 @@ class Player(pykka.ThreadingActor):
 
     prev = None
     startup_sound = '/usr/uproar/startup.mp3'
-
+    log_count = 0
     def play(self, track, with_command, args, delete):
         args.insert(0, with_command)
         args.insert(1, track)
-        p = subprocess.Popen(args)
-
+        with open('%s.log' % self.log_count, 'w') as outfile:
+            p = subprocess.Popen(args, stdout=outfile)
+            self.log_count += 1
         self.queue_actor.tell({'command': 'playing_process', "p": p})
 
         # TODO schedule kill
