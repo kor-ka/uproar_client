@@ -22,7 +22,7 @@ class Player(pykka.ThreadingActor):
     def play(self, track, with_command, args, delete):
         args = "" if not args else " " + args
         cmd = with_command + args + " " + track
-        print (cmd)
+        print (cmd)s
         p = subprocess.Popen(cmd, shell=True)
 
         self.queue_actor.tell({'command': 'playing_process', "p": p})
@@ -114,7 +114,7 @@ class Downloader(pykka.ThreadingActor):
                                               str(track.get('count')) + '.mp4')
                     file = resp[0]
                     track["play_with"] = "mplayer"
-                    track["args"] = "-fs"
+                    track["args"] = "-fs -framedrop"
                     # track["kill"] = "killall -9 VLC"
                     self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': file})
             except Exception as ex:
