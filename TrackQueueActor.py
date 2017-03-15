@@ -4,6 +4,7 @@ import os.path
 from Queue import Queue
 
 import logging
+
 import pykka
 import signal
 
@@ -20,8 +21,8 @@ class Player(pykka.ThreadingActor):
     startup_sound = '/usr/uproar/startup.mp3'
 
     def play(self, track, with_command, args, delete):
-
-        p = subprocess.Popen(with_command, args=args)
+        args.insert(0, with_command)
+        p = subprocess.Popen(args)
 
         self.queue_actor.tell({'command': 'playing_process', "p": p})
 
