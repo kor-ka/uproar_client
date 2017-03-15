@@ -98,7 +98,7 @@ class Downloader(pykka.ThreadingActor):
                 # song.export(wav_track, format='wav')
                 # os.remove(mp3_track)
                 track["play_with"] = "mplayer"
-                track["args"] = ["-fs, -framedrop"]
+                track["args"] = ["-fs", "-framedrop"]
                 self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': mp3_track})
             except Exception as ex:
                 print logging.exception(ex)
@@ -115,7 +115,7 @@ class Downloader(pykka.ThreadingActor):
                                               str(track.get('count')) + '.mp4')
                     file = resp[0]
                     track["play_with"] = "mplayer"
-                    track["args"] =["-fs, -framedrop"]
+                    track["args"] =["-fs", "-framedrop"]
                     # track["kill"] = "killall -9 VLC"
                     self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': file})
             except Exception as ex:
