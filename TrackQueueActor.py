@@ -22,6 +22,7 @@ class Player(pykka.ThreadingActor):
     startup_sound = '/usr/uproar/startup.mp3'
     log_count = 0
     def play(self, track, with_command, args, delete):
+        args = [] if args is None else args
         args.insert(0, with_command)
         args.insert(1, track)
         p = subprocess.Popen(args)
@@ -96,6 +97,7 @@ class Downloader(pykka.ThreadingActor):
                 # song = AudioSegment.from_mp3(mp3_track)
                 # wav_track = str(self.count) + '.wav'
                 # song.export(wav_track, format='wav')
+
                 # os.remove(mp3_track)
                 track["play_with"] = "mpg123"
                 self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': file})
