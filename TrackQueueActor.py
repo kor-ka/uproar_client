@@ -97,11 +97,7 @@ class Downloader(pykka.ThreadingActor):
                 # wav_track = str(self.count) + '.wav'
                 # song.export(wav_track, format='wav')
                 # os.remove(mp3_track)
-                track["play_with"] = "mplayer"
-                track["args"] = ["-framedrop"]
-                if 'darwin' in sys.platform:
-                    track["args"].insert(0, "-fs")
-                self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': mp3_track})
+                track["play_with"] = "mpg123"
             except Exception as ex:
                 print logging.exception(ex)
 
@@ -120,6 +116,9 @@ class Downloader(pykka.ThreadingActor):
                     track["args"] =["-framedrop"]
                     if 'darwin' in sys.platform:
                         track["args"].insert(0, "-fs")
+                    else:
+                        track["args"].insert(0, "-vo")
+                        track["args"].insert(1, "null")
                     # track["kill"] = "killall -9 VLC"
                     self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': file})
             except Exception as ex:
