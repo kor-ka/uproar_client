@@ -79,7 +79,7 @@ class Downloader(pykka.ThreadingActor):
 
     def download(self, track):
 
-        print ('download track: ' + track.get("title"))
+        print ('download track: ' + track.get("title_safe"))
         track['message'] = 'download'
         self.mqtt_actor.tell({'command': 'update_track_status', 'track': track})
 
