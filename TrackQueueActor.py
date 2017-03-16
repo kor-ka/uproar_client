@@ -91,13 +91,14 @@ class Downloader(pykka.ThreadingActor):
             try:
                 resp = urllib.urlretrieve(track_url,
                                           str(track.get('count')) + '.mp3')
-                mp3_track = resp[0]
+                file = resp[0]
                 # print ('convert track to wav')
                 # song = AudioSegment.from_mp3(mp3_track)
                 # wav_track = str(self.count) + '.wav'
                 # song.export(wav_track, format='wav')
                 # os.remove(mp3_track)
                 track["play_with"] = "mpg123"
+                self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': file})
             except Exception as ex:
                 print logging.exception(ex)
 
