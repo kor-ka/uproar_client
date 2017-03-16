@@ -220,9 +220,9 @@ class TrackQueueActor(pykka.ThreadingActor):
                     elif ytb:
                         content = ytb
                         content["type"] = "ytb"
-                    content['title'] = content.get('title').encode('ascii', 'ignore').decode(
+                    content['title_safe'] = content.get('title').encode('ascii', 'ignore').decode(
                         'ascii')
-                    print ('add content ' + content.get('title') + ' to download queue')
+                    print ('add content ' + content.get('title_safe') + ' to download queue')
                     self.download_queue.put(content)
                     self.boring = True
                     self.downloader.tell({'command': 'check'})
@@ -269,7 +269,7 @@ class TrackQueueActor(pykka.ThreadingActor):
                     track = message.get('track')
                     track['message'] = 'queue'
                     self.mqtt_actor.tell({'command': 'update_track_status', 'track': track})
-                    print ('add track ' + message.get('track').get('title') + ' to play queue')
+                    print ('add track ' + message.get('track').get('title_safe') + ' to play queue')
                     self.player.tell({'command': 'check'})
 
 
