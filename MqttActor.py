@@ -80,6 +80,6 @@ class MqttActor(pykka.ThreadingActor):
             self.publish(outMsg)
 
     def publish(self, outMsg):
-        print("MQTT ->" + outMsg)
+        print("MQTT ->" + str(outMsg))
         self.client.publish("device_out", outMsg)
             
