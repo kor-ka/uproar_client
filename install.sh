@@ -7,6 +7,7 @@ cd uproar_client
 # install deps
 apt-get -y install python-pip
 apt-get -y install mpg123
+apt-get -y install mplayer
 pip install -r requirements.txt
 
 # install blink - shoudown with button
