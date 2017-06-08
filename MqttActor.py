@@ -13,7 +13,7 @@ class MqttActor(pykka.ThreadingActor):
         self.once = True
 
     def on_message(self, client, userdata, msg):
-        print("MQTT <-" + msg)
+        print("MQTT <-" + str(msg))
 
         self.check_q_a()
 
