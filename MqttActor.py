@@ -13,6 +13,7 @@ class MqttActor(pykka.ThreadingActor):
         self.once = True
 
     def on_message(self, client, userdata, msg):
+        print("MQTT <-" + msg)
 
         self.check_q_a()
 
@@ -72,7 +73,13 @@ class MqttActor(pykka.ThreadingActor):
         elif message.get('command') == "update_track_status":
             track = message.get('track')
             update = {"update":"update_track_status", "token":self.uid, "data":track}
-            self.client.publish("device_out", str(json.dumps(update)))
+            outMsg = str(json.dumps(update))
+            self.publish(outMsg)
         elif message.get('command') == "update":
-            self.client.publish("device_out", str(json.dumps({"update":message.get("update"), "token":self.uid, "data":message.get("data")})))
+            outMsg = str(json.dumps({"update": message.get("update"), "token": self.uid, "data": message.get("data")}))
+            self.publish(outMsg)
+
+    def publish(self, outMsg):
+        print("MQTT ->" + outMsg)
+        self.client.publish("device_out", outMsg)
             
