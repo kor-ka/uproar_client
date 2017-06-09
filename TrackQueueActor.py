@@ -121,7 +121,7 @@ class Downloader(pykka.ThreadingActor):
                         track["args"].insert(0, "-fs")
                     else:
                         track["args"].insert(0, "-vo")
-                        track["args"].insert(1, "aa")
+                        track["args"].insert(1, "caca")
                     # track["kill"] = "killall -9 VLC"
                     self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': file})
             except Exception as ex:
