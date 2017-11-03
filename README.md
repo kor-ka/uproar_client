@@ -8,3 +8,5 @@ telegram.me/uproarbot -> /token
 sudo wget -O - https://goo.gl/40pbNV | sudo bash -s "YOUR_TOKEN_HERE"
 
 install will clone this rep, install all dependensies and enable daemon
+
+kor_ka-51T15-7b50cef265169822022a7b84ee8d0b598cf9e93491e2e8cd7f8caff3d23fc036
