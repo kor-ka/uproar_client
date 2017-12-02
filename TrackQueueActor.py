@@ -108,13 +108,16 @@ class Downloader(pykka.ThreadingActor):
             try:
                 print ('extracting ytb video link')
                 yt = YouTube(track.get("url"))
-                video = yt.filter('mp4')[-1]
+                video = yt.streams.filter(file_extension = 'mp4').order_by('resolution').asc().first()
                 if video:
                     track["url"] = video.url
 
                     resp = urllib.urlretrieve(video.url,
                                               str(track.get('count')) + '.mp4')
-                    file = resp[0]
+
+                    subprocess.Popen(["wget", "-O", str(track.get('count')) + '.mp4'])
+
+                    _file =  resp[0]
                     track["play_with"] = "mplayer"
                     track["args"] =["-framedrop"]
                     if 'darwin' in sys.platform:
@@ -123,7 +126,7 @@ class Downloader(pykka.ThreadingActor):
                         track["args"].insert(0, "-vo")
                         track["args"].insert(1, "null")
                     # track["kill"] = "killall -9 VLC"
-                    self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': file})
+                    self.queue_actor.tell({'command': 'downloaded', 'track': track, 'file': _file})
             except Exception as ex:
                 print logging.exception(ex)
         self.check_queue()
